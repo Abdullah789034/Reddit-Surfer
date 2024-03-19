@@ -1,37 +1,73 @@
 let intervalId = null;
 let tabId = null;
+let stopIntervalId = null; // Added this line
 
+const startButton = document.getElementById('start');
+startButton.addEventListener('click', () => {
+    clearInterval(intervalId);
+    clearInterval(stopIntervalId); // Changed this line
+    scrollAndDo();
+});
 
+function scrollAndDo() {
+    clearInterval(intervalId);
+    clearInterval(stopIntervalId); // Changed this line
+    const scrollSpeedInput = document.getElementById('scrollSpeed');
+    const minWaitTimeInput = document.getElementById('minWaitTime');
+    const maxWaitTimeInput = document.getElementById('maxWaitTime');
 
-function clickRandomPostAndWait(minWaitTime, maxWaitTime, speed) {
+    const speed = parseInt(scrollSpeedInput.value);
+    const minWaitTime = parseInt(minWaitTimeInput.value);
+    const maxWaitTime = parseInt(maxWaitTimeInput.value);
+    if (!isNaN(speed)) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            tabId = tabs[0].id;
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                function: scrollDown,
+                args: [speed]
+            });
+            const random = Math.floor(Math.random() * 20) + 5;
+            setTimeout(() => {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    function: clickRandomPostAndWait,
+                    args: [minWaitTime, maxWaitTime, speed]
+                });
+            }, 1000 * random);
+        });
+        startButton.style.display = 'none';
+        const stopButton = document.getElementById('stop');
+        stopButton.style.display = 'inline';
+    }
+}
+
+async function clickRandomPostAndWait(minWaitTime, maxWaitTime, speed) {
     console.log('in func');
 
     //Clicking Post
-    const posts = document.querySelectorAll('a[slot="full-post-link"]')
+    const posts = document.querySelectorAll('a[slot="full-post-link"]');
     console.log(posts);
     if (posts.length > 0) {
         const randomPostIndex = Math.floor(Math.random() * posts.length);
         posts[randomPostIndex].click();
 
         //Stop Scroll
-
+        clearInterval(stopIntervalId); // Changed this line
     } else {
         console.error('No posts found with the specified selector.');
     }
 
     const waitTime = Math.random() * (maxWaitTime - minWaitTime) + minWaitTime;
     console.log(waitTime);
-    setTimeout(() => {
-
-        const redditLogo = document.querySelector('a[aria-label="Home"]');
+    setTimeout(async () => {
+        const redditLogo = document.querySelector('a[id="reddit-logo"]');
         if (redditLogo) {
-            redditLogo.click();
+            await redditLogo.click();
         } else {
             // If the logo is not found, simulate clicking the browser's back button
-            window.history.back();
+            // window.history.back();
         }
-
-        scrollDown(speed);
     }, waitTime * 1000);
 }
 
@@ -40,7 +76,7 @@ function stopScroll() {
     chrome.scripting.executeScript({
         target: { tabId: tabId },
         function: () => {
-            clearInterval(window.stopIntervalId);
+            clearInterval(stopIntervalId);
         }
     });
     const stopButton = document.getElementById('stop');
@@ -50,8 +86,8 @@ function stopScroll() {
 }
 
 function scrollDown(speed) {
-    console.log('scrolling')
-    window.stopIntervalId = setInterval(() => {
+    console.log('scrolling');
+    stopIntervalId = setInterval(() => { // Changed this line
         const distance = speed * (1000 / 60);
         document.documentElement.style.scrollBehavior = 'smooth';
         window.scrollBy({
@@ -61,42 +97,14 @@ function scrollDown(speed) {
     }, 1000);
 }
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    const startButton = document.getElementById('start');
-    startButton.addEventListener('click', () => {
-        const scrollSpeedInput = document.getElementById('scrollSpeed');
-        const minWaitTimeInput = document.getElementById('minWaitTime');
-        const maxWaitTimeInput = document.getElementById('maxWaitTime');
-
-        const speed = parseInt(scrollSpeedInput.value);
-        const minWaitTime = parseInt(minWaitTimeInput.value);
-        const maxWaitTime = parseInt(maxWaitTimeInput.value);
-        if (!isNaN(speed)) {
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                tabId = tabs[0].id;
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    function: scrollDown,
-                    args: [speed]
-                });
-                const random = Math.floor(Math.random() * 10) + 1;
-                setTimeout(() => {
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabId },
-                        function: clickRandomPostAndWait,
-                        args: [minWaitTime, maxWaitTime, speed]
-                    });
-                }, 1000 * random)
-
-
-            });
-            startButton.style.display = 'none';
-            const stopButton = document.getElementById('stop');
-            stopButton.style.display = 'inline';
+setInterval(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        taburl = tabs[0].url;
+        if (taburl == "https://www.reddit.com/") {
+            scrollAndDo();
         }
     });
+}, 10000);
 
-    const stopButton = document.getElementById('stop');
-    stopButton.addEventListener('click', stopScroll);
-});
+const stopButton = document.getElementById('stop');
+stopButton.addEventListener('click', stopScroll);

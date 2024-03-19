@@ -47,6 +47,11 @@
     img{
       border-radius: 50%;
     }
+    #lab{
+      display: flex;
+      padding: 20px;
+      margin: 10px;
+    }
   </style>
 </head>
 <body>
@@ -56,14 +61,28 @@
   <input type="number" id="scrollSpeed" min="1" value="10"><br>
   <button id="start">Start</button>
   <button id="stop" style="display:none;">Stop</button>
-  <label for="minBreakTime">Minimum Break Time (seconds) SCROLLING:</label>
-<input type="number" id="minBreakTime" min="0" value="5"><br>
-<label for="maxBreakTime">Maximum Break Time (seconds) SCROLLING:</label>
-<input type="number" id="maxBreakTime" min="0" value="10"><br>
-<label for="minWaitTime">Minimum Wait Time (seconds) POST:</label>
-<input type="number" id="minWaitTime" min="0" value="5"><br>
-<label for="maxWaitTime">Maximum Wait Time (seconds) POST:</label>
-<input type="number" id="maxWaitTime" min="0" value="10"><br>
+<div>
+  <label for="randomBreaks">Enable Random Breaks:</label>
+  <input type="checkbox" id="randomBreaks" checked><br>
+</div>
+  <div id="lab">
+    <div id="scroll-time">
+      
+      <label for="minBreakTime">Minimum Break Time (seconds) SCROLLING:</label>
+      <input type="number" id="minBreakTime" min="0" value="5"><br>
+      <label for="maxBreakTime">Maximum Break Time (seconds) SCROLLING:</label>
+      <input type="number" id="maxBreakTime" min="0" value="10"><br>
+    </div>
+    <div>
+      <label for="minWaitTime">Minimum Wait Time (seconds) POST:</label>
+      <input type="number" id="minWaitTime" min="0" value="5"><br>
+      <label for="maxWaitTime">Maximum Wait Time (seconds) POST:</label>
+      <input type="number" id="maxWaitTime" min="0" value="10"><br>
+    </div>
+  </div>
+
+  
+
 
   <script src="popup.js"></script>
 </body>

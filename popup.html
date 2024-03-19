@@ -10,11 +10,11 @@
       background-color: #f4f4f4;
       color: #333;
       margin: 0;
-      padding: 20px;
+      padding: 30px;
     }
 
     h1 {
-      color: #007bff;
+      color: #FF4500; /* Adjusted to a reddish shade */
     }
 
     label {
@@ -34,7 +34,7 @@
       padding: 10px 20px;
       font-size: 18px;
       cursor: pointer;
-      background-color: #007bff;
+      background-color: #FF4500; /* Adjusted to a reddish shade */
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -42,14 +42,48 @@
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #FF6347; /* Adjusted to a slightly lighter reddish shade on hover */
+    }
+
+    img {
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+
+    #lab {
+      display: flex;
+      padding: 20px;
+      margin: 10px;
+    }
+
+    #scroll-time {
+      margin-right: 30px;
     }
   </style>
 </head>
 <body>
+  <img src="icon2.jpg" alt="Logo" width="70" height="70">
   <h1>Reddit Surfer</h1>
   <label for="scrollSpeed">Scrolling speed (pixels/second):</label>
   <input type="number" id="scrollSpeed" min="1" value="10"><br>
+  <div>
+    <label for="randomBreaks">Enable Random Breaks:</label>
+    <input type="checkbox" id="randomBreaks" checked><br>
+  </div>
+  <div id="lab">
+    <div id="scroll-time">
+      <label for="minBreakTime">Minimum Break Time (seconds) SCROLLING:</label>
+      <input type="number" id="minBreakTime" min="0" value="5"><br>
+      <label for="maxBreakTime">Maximum Break Time (seconds) SCROLLING:</label>
+      <input type="number" id="maxBreakTime" min="0" value="10"><br>
+    </div>
+    <div>
+      <label for="minWaitTime">Minimum Wait Time (seconds) POST:</label>
+      <input type="number" id="minWaitTime" min="0" value="5"><br>
+      <label for="maxWaitTime">Maximum Wait Time (seconds) POST:</label>
+      <input type="number" id="maxWaitTime" min="0" value="10"><br>
+    </div>
+  </div>
   <button id="start">Start</button>
   <button id="stop" style="display:none;">Stop</button>
   <script src="popup.js"></script>

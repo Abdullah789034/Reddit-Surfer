@@ -1,13 +1,22 @@
 let intervalId = null;
 let tabId = null;
 let stopIntervalId = null; // Added this line
+let count = false;
 
 const startButton = document.getElementById('start');
-startButton.addEventListener('click', () => {
-    clearInterval(intervalId);
-    clearInterval(stopIntervalId); // Changed this line
-    scrollAndDo();
-});
+if (startButton.innerText === 'Start') {
+    startButton.addEventListener('click', () => {
+        clearInterval(intervalId);
+        clearInterval(stopIntervalId); // Changed this line
+        startButton.disabled = true
+        scrollAndDo();
+    });
+}
+else if (startButton.innerText === 'Stop') {
+    startButton.addEventListener('click', () => {
+        stopScroll();
+    })
+}
 
 function scrollAndDo() {
     clearInterval(intervalId);
@@ -20,30 +29,31 @@ function scrollAndDo() {
     const speed = parseInt(scrollSpeedInput.value);
     const minWaitTime = parseInt(minWaitTimeInput.value);
     const maxWaitTime = parseInt(maxWaitTimeInput.value);
+    const breaks = document.getElementById('randomBreaks');
+    const checks = breaks.checked;
     if (!isNaN(speed)) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             tabId = tabs[0].id;
             chrome.scripting.executeScript({
                 target: { tabId: tabId },
                 function: scrollDown,
-                args: [speed]
+                args: [speed, checks]
             });
-            const random = Math.floor(Math.random() * 10) + 1;
+            const random = Math.floor(Math.random() * 10) + 3;
+            console.log(random)
             setTimeout(() => {
                 chrome.scripting.executeScript({
                     target: { tabId: tabId },
                     function: clickRandomPostAndWait,
-                    args: [minWaitTime, maxWaitTime, speed, scrollAndDo]
+                    args: [minWaitTime, maxWaitTime, speed]
                 });
             }, 1000 * random);
         });
-        startButton.style.display = 'none';
-        const stopButton = document.getElementById('stop');
-        stopButton.style.display = 'inline';
     }
 }
 
-async function clickRandomPostAndWait(minWaitTime, maxWaitTime, speed, scrollAndDo) {
+async function clickRandomPostAndWait(minWaitTime, maxWaitTime, speed) {
+
     console.log('in func');
 
     //Clicking Post
@@ -66,14 +76,9 @@ async function clickRandomPostAndWait(minWaitTime, maxWaitTime, speed, scrollAnd
         // if (redditLogo) {
         //     await redditLogo.click();
         // } else {
-
         window.history.back();
         //}
     }, waitTime * 1000);
-    const script = `
-        (${scrollAndDo.toString()})([${speed}]);
-    `;
-    await executeScript(script);
 
 }
 
@@ -85,10 +90,8 @@ function stopScroll() {
             clearInterval(stopIntervalId);
         }
     });
-    const stopButton = document.getElementById('stop');
-    stopButton.style.display = 'none';
     const startButton = document.getElementById('start');
-    startButton.style.display = 'inline';
+    startButton.disabled = true;
 }
 
 function generateRandom() {
@@ -98,28 +101,83 @@ function generateRandom() {
 
 const rn = generateRandom();
 
-function scrollDown(speed) {
+function scrollDown(speed, checks) {
     console.log('scrolling');
-    stopIntervalId = setInterval(() => { // Changed this line
-        const distance = speed * (1000 / 60);
-        document.documentElement.style.scrollBehavior = 'smooth';
-        window.scrollBy({
-            top: distance,
-            behavior: 'smooth'
-        });
-    }, 1000);
+    console.log(checks)
+    if (checks) {
+        const rnd = Math.floor(Math.random() * 10) + 5;
+        stopIntervalId = setInterval(() => { // Changed this line
+            setTimeout(() => {
+                const distance = speed * (1000 / 60);
+                document.documentElement.style.scrollBehavior = 'smooth';
+                window.scrollBy({
+                    top: distance,
+                    behavior: 'smooth'
+                });
+            }, rnd * 1000)
+
+        }, 1000);
+    }
+    else {
+        stopIntervalId = setInterval(() => { // Changed this line
+            const distance = speed * (1000 / 60);
+            document.documentElement.style.scrollBehavior = 'smooth';
+            window.scrollBy({
+                top: distance,
+                behavior: 'smooth'
+            });
+        }, 1000);
+    }
+
 }
 
-// setTimeout(() => {
-//     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//         taburl = tabs[0].url;
-//         if (taburl == "https://www.reddit.com/") {
-//             scrollAndDo();
-//         }
-//     });
-// }, 10000);
+function checkStop() {
+    const bt = document.getElementById('start')
+    if (bt.innerText == 'Stop') {
+        return true;
+    }
+}
+
+const breaks = document.getElementById('randomBreaks');
+const checks = breaks.checked;
+console.log(checks)
+if (checks) {
+    const r = generateRandom(10, 5);
+    setInterval(() => {
+        setTimeout(() => {
+            clearInterval(intervalId);
+            clearInterval(stopIntervalId);
+            count = true;
+            console.log(count);
+            if (count) {
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    taburl = tabs[0].url;
+                    if (taburl == "https://www.reddit.com/") {
+                        scrollAndDo();
+                    }
+                });
+            }
+        }, 1000)
+    }, 15000);
+}
+else {
+    setInterval(() => {
+        clearInterval(intervalId);
+        clearInterval(stopIntervalId);
+        count = true;
+        console.log(count);
+        if (count) {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                taburl = tabs[0].url;
+                if (taburl == "https://www.reddit.com/") {
+                    scrollAndDo();
+                }
+            });
+        }
+    }, 12000);
+}
 
 
-const stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', stopScroll);
+
+
 

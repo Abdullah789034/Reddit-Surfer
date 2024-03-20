@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Reddit Surfer",
-  "description": "Base Level Extension",
+  "description": "reddit surfer extesnion",
   "version": "1.5",
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon2.png"
   },
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting","tabs","storage"],
 
   "icons": {
     "16": "icon2.png",
